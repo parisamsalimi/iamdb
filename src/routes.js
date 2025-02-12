@@ -1,6 +1,6 @@
-import SearchPage from "@/pages/SearchPage.vue";
-import MovieListPage from "@/pages/MovieListPage.vue";
-import MovieDetailPage from "@/pages/MovieDetailPage.vue";
+import SearchPage from "./pages/SearchPage.vue";
+import MovieDetailPage from "./pages/MovieDetailPage.vue";
+import MovieListPage from "./pages/MovieListPage.vue";
 
 const routes = [
   {
@@ -8,15 +8,11 @@ const routes = [
     component: SearchPage,
   },
   {
-    path: "/movies",
+    path: "/movies/:genre",
     component: MovieListPage,
   },
   {
     path: "/movie/:id",
-    component: MovieDetailPage,
-  },
-  {
-    path: "/test/:id",
     component: MovieDetailPage,
   },
 ];

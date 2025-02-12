@@ -7,10 +7,12 @@ const showAll = ref(false);
 
 const fetchMovies = async () => {
   try {
-    const response = await fetch("https://moviesapi.codingfront.dev/api/v1/genres");
+    const response = await fetch(
+      "https://moviesapi.codingfront.dev/api/v1/genres"
+    );
     const data = await response.json();
-    movies.value = data.slice(0, 20); 
-    visibleMovies.value = movies.value.slice(0, 4); 
+    movies.value = data.slice(0, 20);
+    visibleMovies.value = movies.value.slice(0, 4);
   } catch (error) {
     console.error("Error fetching movies:", error);
   }
@@ -18,11 +20,10 @@ const fetchMovies = async () => {
 
 const showMore = () => {
   showAll.value = true;
-  visibleMovies.value = movies.value; 
+  visibleMovies.value = movies.value;
 };
 
 onMounted(fetchMovies);
-
 </script>
 <template>
   <div class="container">
@@ -39,12 +40,12 @@ onMounted(fetchMovies);
     <div class="movie">
       <ul class="item_movie">
         <li class="list_movie" v-for="movie in visibleMovies">
-          {{ movie.name }}
+          <router-link :to="`/movies/${movie.name.toLowerCase()}`">
+            {{ movie.name }}
+          </router-link>
         </li>
       </ul>
       <button class="btn" v-if="!showAll" @click="showMore">Show More</button>
-
-     
     </div>
   </div>
 </template>
