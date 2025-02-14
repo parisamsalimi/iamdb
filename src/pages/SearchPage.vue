@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import SearchInput from "@/components/SearchInput.vue";
 
 const movies = ref([]);
 const visibleMovies = ref([]);
@@ -30,13 +31,10 @@ onMounted(fetchMovies);
     <div class="hero">
       <h1>IAMDb</h1>
     </div>
-    <div class="search">
-      <img class="search_icon" src="./assest/img/search 1.png" alt="" />
-      <input class="search_bar" type="text" />
 
-      <img class="mic" src="./assest/img/Group 19.png" alt="" />
-    </div>
+    
 
+<SearchInput />
     <div class="movie">
       <ul class="item_movie">
         <li class="list_movie" v-for="movie in visibleMovies">
@@ -112,6 +110,7 @@ onMounted(fetchMovies);
   padding: 5px 10px;
   font-size: 12px;
   cursor: pointer;
+
 }
 .btn {
   background-color: #222c4f;
