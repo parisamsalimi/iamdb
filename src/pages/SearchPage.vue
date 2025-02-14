@@ -5,6 +5,7 @@ import SearchInput from "@/components/SearchInput.vue";
 const movies = ref([]);
 const visibleMovies = ref([]);
 const showAll = ref(false);
+const loading = ref(true);
 
 const fetchMovies = async () => {
   try {
@@ -14,6 +15,7 @@ const fetchMovies = async () => {
     const data = await response.json();
     movies.value = data.slice(0, 20);
     visibleMovies.value = movies.value.slice(0, 4);
+    loading.value = false;
   } catch (error) {
     console.error("Error fetching movies:", error);
   }
@@ -32,95 +34,70 @@ onMounted(fetchMovies);
       <h1>IAMDb</h1>
     </div>
 
-    
-
-<SearchInput />
+    <SearchInput />
     <div class="movie">
-      <ul class="item_movie">
-        <li class="list_movie" v-for="movie in visibleMovies">
-          <router-link :to="`/movies/${movie.name.toLowerCase()}`">
-            {{ movie.name }}
-          </router-link>
-        </li>
-      </ul>
-      <button class="btn" v-if="!showAll" @click="showMore">Show More</button>
+      <div class="item_movie" v-for="movie in visibleMovies">
+        <router-link :to="`/movies/${movie.name.toLowerCase()}`">
+          {{ movie.name }}
+        </router-link>
+      </div>
+      <button
+        class="movie_show_more_btn"
+        v-if="!showAll && !loading"
+        @click="showMore"
+      >
+        Show More >
+      </button>
     </div>
   </div>
 </template>
 <style scoped>
 .container {
-  width: 920px;
-  max-width: 100%;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 920px;
+  width: 100%;
+  padding: 0 15px;
+  margin: 0 auto;
 }
-.hero {
-  width: 920px;
-  margin-top: 172px;
-}
+
 .hero h1 {
   color: white;
-  font-size: 140px;
+  font-size: 100px;
   text-align: center;
+  padding-top: 150px;
+  font-family: "Inter";
   font-weight: 900;
 }
 .search {
-  margin-top: -50px;
-}
-.search_icon {
-  position: relative;
-  top: 60px;
-  left: 20px;
-}
-.mic {
-  position: relative;
-  bottom: 35px;
-  left: 880px;
-}
-.search_bar {
-  width: 920px;
-  height: 48px;
-  border-radius: 16px;
-  background-color: #222c4f;
-  border: none;
+  margin-top: -60px;
 }
 .movie {
-  width: 920px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  /* height: 27px; */
+  flex-direction: row;
+  flex-wrap: wrap;
   margin-top: 30px;
+  gap: 10px;
+  justify-content: center;
 }
 .item_movie {
-  color: white;
-  list-style-type: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  text-align: center;
-  padding: 0;
-  margin: 0;
-}
-.list_movie {
   background-color: #222c4f;
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
-
 }
-.btn {
+.item_movie a {
+  color: white;
+  text-decoration: none;
+}
+.movie_show_more_btn {
   background-color: #222c4f;
   color: white;
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 6px 12px;
   border: none;
   word-spacing: 2px;
   font-size: 12px;
   cursor: pointer;
-  margin-left: 10px;
 }
 </style>
