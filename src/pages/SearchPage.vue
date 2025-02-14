@@ -43,11 +43,81 @@ onMounted(fetchMovies);
           </router-link>
         </li>
       </ul>
-      <button class="btn" v-if="!showAll" @click="showMore">Show More</button>
+      <button class="btn" v-if="!showAll" @click="showMore">Show More ></button>
     </div>
   </div>
 </template>
 <style scoped>
+
+.container{
+  width: 430px;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero h1 {
+  color: white;
+  font-size: 100px;
+  text-align: center;
+  padding-top: 304px;
+  font-family: "Inter";
+  font-weight: 900;
+}
+.search{
+  margin-top: -60px;
+}
+.movie {
+  width: 430px;
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+  /* flex-wrap: nowrap; */
+  flex-direction: column;
+  /* height: 27px; */
+  margin-top: 30px;
+  /* margin-left: -15px; */
+}
+.item_movie {
+  color: white;
+  list-style-type: none;
+  display: flex;
+  /* justify-content: center; */
+  /* align-items: center; */
+  /* flex-wrap: wrap; */
+  gap: 10px;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+.list_movie a {
+
+  color: white;
+  text-decoration: none;
+
+}
+.list_movie {
+  background-color: #222c4f;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  
+
+}
+.btn {
+  background-color: #222c4f;
+  color: white;
+  border-radius: 8px;
+  padding: 6px 12px;
+  border: none;
+  word-spacing: 2px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+@media screen and (min-width: 1440px) {
 .container {
   width: 920px;
   max-width: 100%;
@@ -59,10 +129,9 @@ onMounted(fetchMovies);
   margin-top: 172px;
 }
 .hero h1 {
-  color: white;
   font-size: 140px;
-  text-align: center;
-  font-weight: 900;
+  padding-top: 22px;
+  
 }
 .search {
   margin-top: -50px;
@@ -89,6 +158,8 @@ onMounted(fetchMovies);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
+  flex-direction: row;
   /* height: 27px; */
   margin-top: 30px;
 }
@@ -107,20 +178,16 @@ onMounted(fetchMovies);
 .list_movie {
   background-color: #222c4f;
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
+  margin-top: 10px;
 
 }
-.btn {
-  background-color: #222c4f;
-  color: white;
-  border-radius: 8px;
-  padding: 5px 10px;
-  border: none;
-  word-spacing: 2px;
-  font-size: 12px;
-  cursor: pointer;
-  margin-left: 10px;
+.btn{
+  /* margin-top: -10px; */
+  
+}
+
 }
 </style>
