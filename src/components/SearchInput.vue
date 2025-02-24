@@ -21,7 +21,7 @@ const searchMovies = () => {
       <img :src="searchIcon" alt="" />
     </button>
     <input
-      class="search_bar"
+      class="search_input"
       v-model="searchQuery"
       @keyup.enter="searchMovies"
       placeholder=""
@@ -52,10 +52,13 @@ const searchMovies = () => {
   align-items: center;
   justify-content: center;
 }
+.input_icon img {
+  cursor: pointer;
+}
 #microphone {
   border-left: 1px solid #070d23;
 }
-.search_bar {
+.search_input {
   background-color: #222c4f;
   border: none;
   height: 48px;
@@ -65,14 +68,11 @@ const searchMovies = () => {
 .search_bar:focus {
   outline: none;
 }
-​.search_icon {
-  z-index: 1;
-  left: 10px;
-}
+
 .search_line {
   position: absolute;
   top: 50%;
-  right: 50px; /* Adjust spacing */
+  right: 50px; 
   transform: translateY(-50%);
   width: 1px;
   height: 60%;

@@ -155,6 +155,9 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
 }
+.movie_card_text_title_favorite img {
+  cursor: pointer;
+}
 .movie_card_detail_item {
   display: flex;
   justify-content: space-between;
