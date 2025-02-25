@@ -25,9 +25,12 @@ const searchMovies = () => {
       v-model="searchQuery"
       @keyup.enter="searchMovies"
       placeholder=""
+
     />
     <div id="microphone" class="input_icon">
-      <img :src="mic" alt="" />
+      <img  :src="mic" alt="" />
+
+
     </div>
   </div>
 </template>

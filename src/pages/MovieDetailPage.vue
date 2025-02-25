@@ -1,70 +1,164 @@
 <script setup>
 import point from "@/assets/point.svg";
-import movie_img from "@/assets/movie_img.jpg"
+import desktop from "@/assets/desktop.jpg";
+import icon from "@/assets/icon.svg";
+import clk from "@/assets/clk.svg";
+
+import { ref, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
+const movie = ref();
+const id = route.params.id;
+
+const goBack = () => {
+  router.go(-1);
+};
+
+const backgroundStyle = computed(() => ({
+  backgroundImage: `linear-gradient(to top, #070d23 0%, #070d2300 100%), url(${
+    movie.value?.images?.[0] ? movie.value.images[0] : "/src/assets/dark.jpeg"
+  })`,
+}));
+
+onMounted(async () => {
+  try {
+    const response = await fetch(
+      `https://moviesapi.codingfront.dev/api/v1/movies/${id}`
+    );
+    console.log("hello");
+    const data = await response.json();
+    movie.value = data;
+    console.log(movie.value);
+  } catch (error) {
+    console.error("Error fetching movie details:", error);
+  }
+});
 </script>
 <template>
-  <div class="container">
-    <div class="head_pointer">
-      <img :src="point" alt="" />
-    </div>
-    <div class="wrapper">
-      <h1 class="wrapper_title">The Dark Knight</h1>
-      <span class="wrapper_title_genre">Action, Crime, Drama</span>
-      <div class="wrapper_plot">
-        <p>
-          When the menace known as the Joker wreaks havoc and chaos on the
-          people of Gotham, Batman must accept one of the greatest psychological
-          and physical tests of his ability to fight injustice.
-        </p>
-      </div>
-      <div class="wrapper_movie_detail">
-        <ul class="movie_detail">
-          <li class="detail_item">PG-13</li>
-          <li class="detail_item">2008</li>
-          <li class="detail_item">152 min</li>
-        </ul>
-      </div>
-      <div class="wrapper_info">
-        <div class="wrapper_info_rate">
-          <div class="info_rate_circle">
-            <svg viewBox="0 0 100 100">
-              <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
-              <circle class="progress-circle" cx="50" cy="50" r="40"></circle>
-              <text x="50" y="55" text-anchor="middle" class="rating-text">
-                9.1
-              </text>
-            </svg>
-          </div>
-          <div class="wrapper_info_votes">
-            <strong class="imdb_votes">2,528,462</strong>
-            <br>
-            
-            <span class="imdb_text">ratings on IMDB</span>
-          </div>
+  <template v-if="!movie">loading</template>
+  <template v-else>
+    <div :style="backgroundStyle" class="container background_img">
+      <div class="wrapper">
+        <div class="head_pointer">
+          <img @click="goBack" :src="point" alt="pointer" />
         </div>
-        <div class="wrapper_info_about">
-          <span class="info_about_movie">94% on Rotten Tomatoes
-            84/100 on Metacritic</span>
-        </div>
-      </div>
-      <div class="wrapper_movie_img">
-        <img :src="movie_img" alt="">
-        <button class="wrapper_favorite_btn">Add to Favorite</button>
+        <div class="content">
+          <div class="image_wrap">
+            <img :src="movie.poster" alt="movie_poster" />
+            <div class="rate_wrapper">
+              <div class="rate">
+                <div class="rate_circle">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
+                    <circle
+                      class="progress-circle"
+                      cx="50"
+                      cy="50"
+                      r="40"
+                    ></circle>
+                    <text
+                      x="50"
+                      y="55"
+                      text-anchor="middle"
+                      class="rating-text"
+                    >
+                      {{ movie.imdb_rating }}
+                    </text>
+                  </svg>
+                </div>
+                <div class="votes_wrap">
+                  <strong class="imdb_votes">{{ movie.imdb_votes }}</strong>
+                  <br />
+                  <span class="imdb_text">ratings on IMDB</span>
+                </div>
+              </div>
 
+              <div class="rate_description">
+                <div class="info_about_movie">94% on Rotten Tomatoes</div>
+                <div class="info_about_movie">84/100 on Metacritic</div>
+              </div>
+            </div>
+          </div>
+          <div class="detail_wrap">
+            <div class="title_wrap">
+              <h1 class="wrapper_title">{{ movie.title }}</h1>
+              <img :src="icon" alt="" />
+            </div>
+            <span
+              class="genre"
+              v-for="(genre, index) in movie.genres"
+              :key="index"
+              >{{ genre }}
+              <span v-if="index !== movie.genres.length - 1">, </span>
+            </span>
+
+            <p class="description">
+              {{ movie.plot }}
+            </p>
+
+            <div class="movie_detail">
+              <div class="detail_item">PG-13</div>
+              <div class="detail_item">{{ movie.year }}</div>
+              <div class="detail_item">
+                <img :src="clk" alt="" />
+                {{ movie.runtime }}
+              </div>
+            </div>
+
+            <div class="moives_information">
+              <h2>Details</h2>
+              <div class="information_item">
+                <h3>Directors</h3>
+                <span>{{ movie.director }}</span>
+              </div>
+              <div class="information_item">
+                <h3>Writers</h3>
+                <span>{{ movie.writer }}</span>
+              </div>
+              <div class="information_item">
+                <h3>Actors</h3>
+                <span>{{ movie.actors }}</span>
+              </div>
+              <div class="information_item">
+                <h3>Country</h3>
+                <span>{{ movie.country }}</span>
+              </div>
+              <div class="information_item">
+                <h3>Language</h3>
+                <span>English, Mandarin</span>
+              </div>
+              <div class="information_item">
+                <h3>Awards</h3>
+                <span>{{ movie.awards }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="button_wrap">Add to Favorite</button>
       </div>
     </div>
-  </div>
+  </template>
 </template>
 <style scoped>
 .container {
+  width: 100%;
+  margin: 0 auto;
+}
+.background_img {
   background-image: linear-gradient(to top, #070d23 0%, #070d2300 100%),
     url("@/assets/dark.jpeg");
-  width: 100%;
-  height: 379px; /* Ensures full screen height */
-  padding: 30px 0; /* Remove excessive bottom padding */
+  padding: 50px 0;
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: top center; /* Ensures the image aligns to the top */
+  background-position: top center;
+  height: 300px;
+}
+.wrapper {
+  max-width: 920px;
+  width: 100%;
+  padding: 0 15px;
   margin: 0 auto;
 }
 .head_pointer img {
@@ -74,67 +168,103 @@ import movie_img from "@/assets/movie_img.jpg"
   border-radius: 16px;
   padding: 10px;
   text-align: center;
-  position: relative;
-  left: 20px;
+  cursor: pointer;
 }
-.wrapper {
-  width: 100%;
-  height: 1362px;
-  margin-top: 72px;
+.button_wrap {
+  display: none;
 }
 
-.wrapper_title {
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 58.09px;
-  text-align: left;
-  padding-left: 10px;
+.content {
+  display: flex;
+  flex-direction: row;
+  gap: 70px;
+  margin-top: 150px;
+}
+
+.image_wrap {
+  width: 210px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+}
+.image_wrap img {
+  border-radius: 18px;
+  box-shadow: 0, 4px, 15px, 0 #00000040;
+}
+.detail_wrap {
+  flex: 1;
+  height: 300px;
+}
+
+.image_wrap > img {
+  width: 210px;
+}
+
+.title_wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title_wrap h1 {
   margin: 0;
-  font-family: "Inter";
-  
 }
-.wrapper_title_genre {
-  font-family: "Inter";
-  font-size: 12px;
-  opacity: 40%;
-  line-height: 14.52px;
-  padding-left: 12px;
+
+.detail_wrap > .genre {
+  color: #737883;
 }
-.wrapper_plot p {
-  font-size: 14px;
-  font-weight: 400;
-  text-align: justify;
-  padding-left: 12px;
-  padding-right: 12px;
-  opacity: 60%;
-  word-spacing: 1px;
+
+.detail_wrap > .description {
+  color: #9c9fa8;
 }
 
 .movie_detail {
-  list-style-type: none;
   display: flex;
   gap: 10px;
-  margin: 0;
-  margin-left: -30px;
 }
 .detail_item {
   padding: 6px 12px;
   background-color: #222c4f;
   border-radius: 8px;
 }
-.wrapper_info {
-  margin-top: 18px;
+
+.information_item {
   display: flex;
+  flex-direction: row;
+  border-bottom: solid 1px #222c4f;
+  align-items: center;
 }
-.wrapper_info_rate{
+
+.information_item h3 {
+  width: 150px;
+}
+
+.information_item > span {
+  flex: 1;
+  color: #9c9fa8;
+}
+
+.rate_wrapper {
   display: flex;
- 
+  flex-direction: column;
+  margin-top: 30px;
 }
-.info_rate_circle {
-  width: 100px;
-  height: 100px;
+
+.rate {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+.rate_circle {
+  width: 80px;
+  height: 80px;
   position: relative;
   margin-top: -10px;
+}
+
+.rate_description {
+  text-align: left;
+  margin-top: 30px;
 }
 
 svg {
@@ -146,6 +276,22 @@ svg {
   fill: none;
   stroke: #444;
   stroke-width: 8;
+}
+
+.votes_wrap {
+  margin-top: 13.5px;
+  margin-left: 18px;
+}
+.imdb_votes {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: "Roboto";
+}
+.imdb_text {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 60%;
+  font-family: "Roboto";
 }
 
 .progress-circle {
@@ -165,55 +311,69 @@ svg {
   font-weight: 700;
   font-weight: bold;
 }
-.wrapper_info_votes{
-  margin-top: 13.5px;
-  margin-left: 18px;
-}
-.imdb_votes{
-  font-size: 16px;
-  font-weight: 700;
-  font-family: "Roboto";
-  
-}
-.imdb_text{
-  font-size: 14px;
-  font-weight: 400;
-  opacity: 60%;
-  font-family: "Roboto";
-}
-.wrapper_info_about{
- 
- margin-left: 50px;
-  margin-top: 16px;
-}
-.info_about_movie{
+
+.info_about_movie {
   opacity: 50%;
   font-weight: 400;
   font-size: 13px;
-}
-.wrapper_movie_img{
-  width: 406px;
-  height: 637px;
-  margin: 0 auto;
-  margin-top: 18px;
-}
-.wrapper_favorite_btn{
-  width: 406px;
-  height: 41px;
-  border-radius: 12px;
-  padding: 12px 24px;
-  background-color:#724CF9 ;
-  font-size: 14px;
-  position: relative;
-  top: -60px;
-  border: none;
-  color: white;
+  word-spacing: 2px;
 }
 
-@media screen and (min-width: 1440px) {
-  .container {
+@media screen and (max-width: 768px) {
+  .content {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0;
+  }
+  .image_wrap {
     width: 100%;
-    padding: 30px 0 500px;
+    height: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .button_wrap {
+    display: block;
+    width: calc(100% - 30px);
+    height: 40px;
+    background-color: #724cf9;
+    border-radius: 12px;
+    position: fixed;
+    color: white;
+    font-weight: 400px;
+    font-size: 14px;
+    padding: 12px 24px;
+    position: fixed;
+    z-index: 1;
+    border: none;
+    bottom: 20px;
+  }
+  .title_wrap img {
+    display: none;
+  }
+  .image_wrap > img {
+    width: 100%;
+    margin: 30px auto;
+  }
+
+  .detail_wrap {
+    flex: 1;
+    height: 300px;
+  }
+  .moives_information {
+    display: none;
+  }
+  .background_img {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: top center;
+  }
+  .rate_wrapper {
+    flex-direction: row;
+    align-items: center;
+  }
+  .rate_description {
+    margin-left: 30px;
+    margin-top: 0px;
   }
 }
 </style>

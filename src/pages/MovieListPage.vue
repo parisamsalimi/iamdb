@@ -5,11 +5,13 @@ import point from "@/assets/point.svg";
 import icon from "@/assets/icon.svg";
 import star from "@/assets/star.svg";
 import { ref, watch, onMounted } from "vue";
-import { useRoute } from "vue-router";
+
+import { useRoute, useRouter } from "vue-router";
 
 const movies = ref([]);
-
 const route = useRoute();
+const router = useRouter();
+
 const genre = route.params.genre;
 
 onMounted(async () => {
@@ -25,14 +27,19 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+const goBack = () => {
+  router.go(-1);
+};
 </script>
 
 <template>
   <div class="wrapper">
     <div class="head">
-      <div class="head_pointer">
-        <img :src="point" alt="" />
-      </div>
+      <router-link to="/">
+        <div class="head_pointer">
+          <img :src="point" alt="" />
+        </div>
+      </router-link>
       <div class="head_text">
         <h1 class="head_title">Result</h1>
         <span class="head_detail">for “Search Query”</span>
@@ -43,28 +50,37 @@ onMounted(async () => {
     <SearchInput />
 
     <template v-if="movies.length > 0">
-      <div class="movie_card" v-for="movie in movies" :key="movie.id">
-        <div class="movie_card_img"><img :src="movie.poster" alt="" /></div>
-        <div class="movie_card_text">
-          <div class="movie_card_text_title">
-            <div class="movie_card_text_title_detail">
-              <h2>{{ movie.title }}</h2>
-              <img class="movie_card_text_title_favorite" :src="icon" alt="" />
+      <div v-for="movie in movies" :key="movie.id">
+        <router-link class="movie_card" :to="`/movie/${movie.id}`">
+          <div class="movie_card_img"><img :src="movie.poster" alt="" /></div>
+          <div class="movie_card_text">
+            <div class="movie_card_text_title">
+              <div class="movie_card_text_title_detail">
+                <h2>{{ movie.title }}</h2>
+                <img
+                  class="movie_card_text_title_favorite"
+                  :src="icon"
+                  alt=""
+                />
+              </div>
+              <span
+                class="movei_card_genre"
+                v-for="(genre, index) in movie.genres"
+                :key="index"
+                >{{ genre }}
+                <span v-if="index !== movie.genres.length - 1">, </span>
+              </span>
             </div>
-            <span v-for="(genre, index) in movie.genres" :key="index"
-              >{{ genre }}
-              <span v-if="index !== movie.genres.length - 1">, </span>
-            </span>
+            <div class="movie_card_detail">
+              <span>{{ movie.year }}</span>
+              <div class="dot"></div>
+              <span>{{ movie.country }}</span>
+              <div class="dot"></div>
+              <img :src="star" alt="" />
+              <span>{{ movie.imdb_rating }}</span>
+            </div>
           </div>
-          <div class="movie_card_detail">
-            <span>{{ movie.year }}</span>
-            <div class="dot"></div>
-            <span>{{ movie.country }}</span>
-            <div class="dot"></div>
-            <img :src="star" alt="" />
-            <span>{{ movie.imdb_rating }}</span>
-          </div>
-        </div>
+        </router-link>
       </div>
     </template>
     <template v-else>
@@ -110,6 +126,8 @@ onMounted(async () => {
   background-color: #222c4f;
   border-radius: 16px;
   padding: 10px;
+  margin-bottom: 32px;
+  cursor: pointer;
 }
 .wrapper {
   /* border: solid 1px yellow; */
@@ -124,7 +142,12 @@ onMounted(async () => {
   justify-content: flex-start;
   gap: 20px;
   margin-top: 32px;
+  padding-bottom: 20px;
+  border-bottom: solid 1px #222c4f;
+  text-decoration: none;
+  color: white;
 }
+
 .movie_card_img {
   width: 7.625rem;
   height: 7.625rem;
@@ -133,6 +156,7 @@ onMounted(async () => {
 .movie_card_img img {
   width: 100%;
   height: 100%;
+  cursor: pointer;
 }
 .movie_card_text {
   /* border: solid 1px blue; */
@@ -141,11 +165,18 @@ onMounted(async () => {
 
 .movie_card_detail {
   /* border: solid 1px yellow; */
-  /* margin-top: 5px; */
+  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
+}
+.movei_card_genre {
+  opacity: 40%;
+  font-size: 12px;
+}
+.movie_card_text_title_detail > h2 {
+  margin-bottom: 0;
 }
 
 .movie_card_detail_list {
