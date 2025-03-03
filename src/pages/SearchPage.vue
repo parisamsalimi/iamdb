@@ -60,7 +60,7 @@ onMounted(fetchMovies);
 }
 
 .hero h1 {
-  color: white;
+  color: var(--white);
   font-size: 100px;
   text-align: center;
   padding-top: 150px;
@@ -80,19 +80,19 @@ onMounted(fetchMovies);
   justify-content: center;
 }
 .item_movie {
-  background-color: #222c4f;
+  background-color: var(--l-navy);
   border-radius: 8px;
   padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
 }
 .item_movie a {
-  color: white;
+  color: var(--white);
   text-decoration: none;
 }
 .movie_show_more_btn {
-  background-color: #222c4f;
-  color: white;
+  background-color: var(--l-navy);
+  color: var(--white);
   border-radius: 8px;
   padding: 6px 12px;
   border: none;

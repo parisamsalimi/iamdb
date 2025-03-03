@@ -1,6 +1,8 @@
 <script setup>
 import SearchInput from "@/components/SearchInput.vue";
 
+import MovieListPageSkeleton from "@/components/MovieListPageSkeleton.vue";
+
 import point from "@/assets/point.svg";
 import icon from "@/assets/icon.svg";
 import star from "@/assets/star.svg";
@@ -9,6 +11,8 @@ import { ref, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const movies = ref([]);
+const loading = ref(true); 
+
 const route = useRoute();
 const router = useRouter();
 
@@ -48,6 +52,12 @@ const goBack = () => {
     </div>
 
     <SearchInput />
+
+   
+    <MovieListPageSkeleton v-if="loading" />
+
+
+    <template v-else></template>
 
     <template v-if="movies.length > 0">
       <div v-for="movie in movies" :key="movie.id">
@@ -90,7 +100,6 @@ const goBack = () => {
 </template>
 <style scoped>
 .head {
-  /* border: solid 1px red; */
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -98,7 +107,6 @@ const goBack = () => {
   justify-content: space-between;
 }
 .head_text {
-  /* border: solid 1px red; */
   text-align: center;
 }
 .head_title {
@@ -112,7 +120,7 @@ const goBack = () => {
   width: 0.625rem;
   height: 0.625rem;
   border-radius: 100%;
-  background-color: #222c4f;
+  background-color: var(--l-navy);
 }
 .head_detail {
   font-weight: 300;
@@ -123,35 +131,32 @@ const goBack = () => {
 .head_pointer {
   width: 40px;
   height: 40px;
-  background-color: #222c4f;
+  background-color: var(--l-navy);
   border-radius: 16px;
   padding: 10px;
   margin-bottom: 32px;
   cursor: pointer;
 }
 .wrapper {
-  /* border: solid 1px yellow; */
   max-width: 920px;
   width: 100%;
   padding: 0 15px;
   margin: 0 auto;
 }
 .movie_card {
-  /* border: solid 1px white; */
   display: flex;
   justify-content: flex-start;
   gap: 20px;
   margin-top: 32px;
   padding-bottom: 20px;
-  border-bottom: solid 1px #222c4f;
+  border-bottom: solid 1px var(--l-navy);
   text-decoration: none;
-  color: white;
+  color: var(--white);
 }
 
 .movie_card_img {
   width: 7.625rem;
   height: 7.625rem;
-  /* border: solid 1px blue; */
 }
 .movie_card_img img {
   width: 100%;
@@ -159,12 +164,10 @@ const goBack = () => {
   cursor: pointer;
 }
 .movie_card_text {
-  /* border: solid 1px blue; */
   flex: 1;
 }
 
 .movie_card_detail {
-  /* border: solid 1px yellow; */
   margin-top: 20px;
   display: flex;
   align-items: center;

@@ -3,8 +3,21 @@
 }
 
 body {
-  background-color: #070d23;
+  background-color: var(--navy);
   margin: 0;
   font-family: "Inter";
-  color: white;
+  color: var(--white);
+}
+:root{
+  --white: #FFFFFF;
+  --navy: #070d23;
+  --l-navy: #222C4F;
+  --purple: #724CF9;
+  --balck: #00000040;
+  --gray: #737883;
+  --l-gray: #9c9fa8;
+  --l-black : #444;
+  --ll-navy: #070d2300;
+  
+
 }

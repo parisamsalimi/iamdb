@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import searchIcon from "@/assets/searchIcon.svg";
 import mic from "@/assets/mic.svg";
+
 const searchQuery = ref("");
 const router = useRouter();
 
@@ -44,7 +45,7 @@ const searchMovies = () => {
   width: 100%;
   height: 48px;
   border-radius: 16px;
-  background-color: #222c4f;
+  background-color: var(--l-navy);
 }
 
 .input_icon {
@@ -59,10 +60,10 @@ const searchMovies = () => {
   cursor: pointer;
 }
 #microphone {
-  border-left: 1px solid #070d23;
+  border-left: 1px solid var(--navy);
 }
 .search_input {
-  background-color: #222c4f;
+  background-color: var(--l-navy);
   border: none;
   height: 48px;
   flex: 1;
@@ -79,6 +80,6 @@ const searchMovies = () => {
   transform: translateY(-50%);
   width: 1px;
   height: 60%;
-  background-color: #070d23;
+  background-color: var(--navy);
 }
 </style>

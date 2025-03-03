@@ -6,38 +6,45 @@ import clk from "@/assets/clk.svg";
 
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import MovieDetailPageSkeleton from "@/components/MovieDetailPageSkeleton.vue";
 
 const router = useRouter();
 const route = useRoute();
 const movie = ref();
+
+const loading = ref(true);
+
 const id = route.params.id;
 
 const goBack = () => {
   router.go(-1);
 };
 
-const backgroundStyle = computed(() => ({
-  backgroundImage: `linear-gradient(to top, #070d23 0%, #070d2300 100%), url(${
-    movie.value?.images?.[0] ? movie.value.images[0] : "/src/assets/dark.jpeg"
-  })`,
-}));
+const backgroundStyle = computed(() => {
+  return movie.value && movie.value.images
+    ? {
+        backgroundImage: `linear-gradient(to top, #070d23 0%, #070d2300 100%), url(${movie.value.images[0]})`,
+      }
+    : {};
+});
 
 onMounted(async () => {
   try {
     const response = await fetch(
       `https://moviesapi.codingfront.dev/api/v1/movies/${id}`
     );
-    console.log("hello");
     const data = await response.json();
     movie.value = data;
     console.log(movie.value);
   } catch (error) {
     console.error("Error fetching movie details:", error);
+  } finally {
+    loading.value = false;
   }
 });
 </script>
 <template>
-  <template v-if="!movie">loading</template>
+  <MovieDetailPageSkeleton v-if="loading" />
   <template v-else>
     <div :style="backgroundStyle" class="container background_img">
       <div class="wrapper">
@@ -99,7 +106,7 @@ onMounted(async () => {
             </p>
 
             <div class="movie_detail">
-              <div class="detail_item">PG-13</div>
+              <div class="detail_item">{{ movie.rated }}</div>
               <div class="detail_item">{{ movie.year }}</div>
               <div class="detail_item">
                 <img :src="clk" alt="" />
@@ -127,7 +134,7 @@ onMounted(async () => {
               </div>
               <div class="information_item">
                 <h3>Language</h3>
-                <span>English, Mandarin</span>
+                <span>{{ movie.language }}</span>
               </div>
               <div class="information_item">
                 <h3>Awards</h3>
@@ -147,8 +154,6 @@ onMounted(async () => {
   margin: 0 auto;
 }
 .background_img {
-  background-image: linear-gradient(to top, #070d23 0%, #070d2300 100%),
-    url("@/assets/dark.jpeg");
   padding: 50px 0;
   background-size: cover;
   background-repeat: no-repeat;
@@ -164,7 +169,7 @@ onMounted(async () => {
 .head_pointer img {
   width: 40px;
   height: 40px;
-  background-color: #222c4f;
+  background-color: var(--l-navy);
   border-radius: 16px;
   padding: 10px;
   text-align: center;
@@ -189,7 +194,7 @@ onMounted(async () => {
 }
 .image_wrap img {
   border-radius: 18px;
-  box-shadow: 0, 4px, 15px, 0 #00000040;
+  box-shadow: 0, 4px, 15px, 0 var(--black);
 }
 .detail_wrap {
   flex: 1;
@@ -211,11 +216,11 @@ onMounted(async () => {
 }
 
 .detail_wrap > .genre {
-  color: #737883;
+  color: var(--gray);
 }
 
 .detail_wrap > .description {
-  color: #9c9fa8;
+  color: var(--l-gray);
 }
 
 .movie_detail {
@@ -224,14 +229,14 @@ onMounted(async () => {
 }
 .detail_item {
   padding: 6px 12px;
-  background-color: #222c4f;
+  background-color: var(--l-navy);
   border-radius: 8px;
 }
 
 .information_item {
   display: flex;
   flex-direction: row;
-  border-bottom: solid 1px #222c4f;
+  border-bottom: solid 1px var(--l-navy);
   align-items: center;
 }
 
@@ -241,7 +246,7 @@ onMounted(async () => {
 
 .information_item > span {
   flex: 1;
-  color: #9c9fa8;
+  color: var(--l-gray);
 }
 
 .rate_wrapper {
@@ -274,7 +279,7 @@ svg {
 
 .bg-circle {
   fill: none;
-  stroke: #444;
+  stroke: var(--l-black);
   stroke-width: 8;
 }
 
@@ -296,7 +301,7 @@ svg {
 
 .progress-circle {
   fill: none;
-  stroke: #a347ff;
+  stroke: var(--purple);
   stroke-width: 8;
   stroke-dasharray: 251;
   stroke-dashoffset: calc(251 - (251 * 91) / 100);
@@ -306,7 +311,7 @@ svg {
 }
 
 .rating-text {
-  fill: white;
+  fill: var(--white);
   font-size: 24px;
   font-weight: 700;
   font-weight: bold;
@@ -335,10 +340,10 @@ svg {
     display: block;
     width: calc(100% - 30px);
     height: 40px;
-    background-color: #724cf9;
+    background-color: var(--purple);
     border-radius: 12px;
     position: fixed;
-    color: white;
+    color: var(--white);
     font-weight: 400px;
     font-size: 14px;
     padding: 12px 24px;
