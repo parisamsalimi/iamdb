@@ -1,7 +1,6 @@
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
-import { useFetch } from "@/composition/useFetch";
 import { useFavoritesStore } from "@/stores/favorites";
 
 import SearchInput from "@/components/SearchInput.vue";
@@ -12,14 +11,18 @@ import like from "@/assets/like.svg";
 import star from "@/assets/star.svg";
 
 const route = useRoute();
-const genre = ref(route.params.genre);
-const query = ref(route.query.q); // Store the genre as a ref
+const genre = ref(route.params.genre || "");
+const query = ref(route.query.q || "");
 const page = ref(1);
+const movies = ref([]);
+const loading = ref(false);
+const allLoaded = ref(false);
 
 watch(
   () => route.query.q,
   (newQuery) => {
     query.value = newQuery;
+    resetPagination();
   }
 );
 
@@ -27,26 +30,71 @@ watch(
   () => route.params.genre,
   (newGenre) => {
     genre.value = newGenre;
+    resetPagination();
   }
 );
 
-const url = computed(
-  () =>
-    `https://moviesapi.codingfront.dev/api/v1/genres/${genre.value}/movies?page=${page.value}`
-);
-
-const searchUrl = computed(
-  () =>
-    `https://moviesapi.codingfront.dev/api/v1/movies?q=${query.value}&page=1`
-);
-
 const fetchUrl = computed(() => {
-  return genre ? url.value : searchUrl.value;
+  if (query.value) {
+    return `https://moviesapi.codingfront.dev/api/v1/movies?q=${query.value}&page=${page.value}`;
+  } else if (genre.value) {
+    return `https://moviesapi.codingfront.dev/api/v1/genres/${genre.value}/movies?page=${page.value}`;
+  }
+  return "";
 });
 
-const { data, loading } = useFetch(fetchUrl);
+const loadMovies = async () => {
+  if (loading.value || allLoaded.value || !fetchUrl.value) return;
+  loading.value = true;
+  console.log("Fetching:", fetchUrl.value);
 
-const movies = computed(() => (data.value ? data.value.data || [] : []));
+  try {
+    const response = await fetch(fetchUrl.value);
+    const result = await response.json();
+    console.log("Fetched Data:", result);
+
+    if (result && result.data && result.data.length) {
+      movies.value.push(...result.data);
+      page.value++;
+    } else {
+      allLoaded.value = true;
+    }
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+  }
+  
+  loading.value = false;
+};
+
+const resetPagination = () => {
+  console.log("Resetting Pagination...");
+  page.value = 1;
+  movies.value = [];
+  allLoaded.value = false;
+  loadMovies();
+};
+
+const handleScroll = () => {
+  if (
+    window.innerHeight + window.scrollY >=
+    document.documentElement.offsetHeight - 100
+  ) {
+    loadMovies();
+  }
+};
+
+watch(fetchUrl, (newUrl) => {
+  console.log("New Fetch URL:", newUrl);
+});
+
+onMounted(() => {
+  loadMovies();
+  window.addEventListener("scroll", handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
 
 const favoritesStore = useFavoritesStore();
 
@@ -69,14 +117,14 @@ const isFavorite = (movieId) => {
       </router-link>
       <div class="head_text">
         <h1 class="head_title">Result</h1>
-        <span class="head_detail">for “Search Query”</span>
+        <span class="head_detail">for “{{ query || genre }}”</span>
       </div>
       <div></div>
     </div>
 
     <SearchInput />
 
-    <MovieListPageSkeleton v-if="loading" />
+    <MovieListPageSkeleton v-if="loading && movies.length === 0" />
 
     <template v-else>
       <template v-if="movies.length > 0">
@@ -93,8 +141,7 @@ const isFavorite = (movieId) => {
                   v-for="(genre, index) in movie.genres"
                   :key="index"
                 >
-                  {{ genre
-                  }}<span v-if="index !== movie.genres.length - 1">, </span>
+                  {{ genre }}<span v-if="index !== movie.genres.length - 1">, </span>
                 </span>
               </div>
               <div class="movie_card_detail">
@@ -107,8 +154,6 @@ const isFavorite = (movieId) => {
               </div>
             </div>
           </router-link>
-
-          <!-- Favorite Button (Moved Outside router-link) -->
           <img
             class="movie_card_text_title_favorite favorite_icon"
             :src="isFavorite(movie.id) ? like : icon"
@@ -119,11 +164,14 @@ const isFavorite = (movieId) => {
       </template>
 
       <template v-else>
-        <div class="not-found">No movies found for: "{{ genre }}"</div>
+        <div class="not-found">No movies found for: "{{ query || genre }}"</div>
       </template>
     </template>
+
+    <MovieListPageSkeleton v-if="loading && movies.length > 0" />
   </div>
 </template>
+
 
 <style scoped>
 .head {
