@@ -1,33 +1,28 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, watch } from "vue";
 import SearchInput from "@/components/SearchInput.vue";
+import { useFetch } from "@/composition/useFetch";
 
-const movies = ref([]);
+const { data, loading } = useFetch(
+  "https://moviesapi.codingfront.dev/api/v1/genres"
+);
+
+const movies = computed(() => (data.value ? data.value.slice(0, 20) : []));
 const visibleMovies = ref([]);
 const showAll = ref(false);
-const loading = ref(true);
-
-const fetchMovies = async () => {
-  try {
-    const response = await fetch(
-      "https://moviesapi.codingfront.dev/api/v1/genres"
-    );
-    const data = await response.json();
-    movies.value = data.slice(0, 20);
-    visibleMovies.value = movies.value.slice(0, 4);
-    loading.value = false;
-  } catch (error) {
-    console.error("Error fetching movies:", error);
-  }
-};
 
 const showMore = () => {
   showAll.value = true;
   visibleMovies.value = movies.value;
 };
 
-onMounted(fetchMovies);
-</script>
+watch(data, (newData) => {
+  if (!showAll.value && newData) {
+    visibleMovies.value = newData.slice(0, 4);
+  }
+});
+</script> 
+
 <template>
   <div class="container">
     <div class="hero">
@@ -50,7 +45,7 @@ onMounted(fetchMovies);
       </button>
     </div>
   </div>
-</template>
+</template> 
 <style scoped>
 .container {
   max-width: 920px;

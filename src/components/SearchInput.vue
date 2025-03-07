@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+
 import searchIcon from "@/assets/searchIcon.svg";
 import mic from "@/assets/mic.svg";
 
@@ -11,8 +12,9 @@ const searchMovies = () => {
   if (!searchQuery.value) return;
 
   router.push({
-    name: "MovieListPage",
+    name: "SearchPage",
     params: { genre: searchQuery.value.trim() },
+    query: { q: searchQuery.value },
   });
 };
 </script>
@@ -26,12 +28,9 @@ const searchMovies = () => {
       v-model="searchQuery"
       @keyup.enter="searchMovies"
       placeholder=""
-
     />
     <div id="microphone" class="input_icon">
-      <img  :src="mic" alt="" />
-
-
+      <img :src="mic" alt="" />
     </div>
   </div>
 </template>
@@ -76,7 +75,7 @@ const searchMovies = () => {
 .search_line {
   position: absolute;
   top: 50%;
-  right: 50px; 
+  right: 50px;
   transform: translateY(-50%);
   width: 1px;
   height: 60%;

@@ -1,38 +1,61 @@
 <script setup>
+import { ref, computed, watch } from "vue";
+import { useRoute } from "vue-router";
+import { useFetch } from "@/composition/useFetch";
+import { useFavoritesStore } from "@/stores/favorites";
+
 import SearchInput from "@/components/SearchInput.vue";
-
 import MovieListPageSkeleton from "@/components/MovieListPageSkeleton.vue";
-
 import point from "@/assets/point.svg";
 import icon from "@/assets/icon.svg";
+import like from "@/assets/like.svg";
 import star from "@/assets/star.svg";
-import { ref, watch, onMounted } from "vue";
-
-import { useRoute, useRouter } from "vue-router";
-
-const movies = ref([]);
-const loading = ref(true); 
 
 const route = useRoute();
-const router = useRouter();
+const genre = ref(route.params.genre);
+const query = ref(route.query.q); // Store the genre as a ref
+const page = ref(1);
 
-const genre = route.params.genre;
-
-onMounted(async () => {
-  try {
-    const response = await fetch(
-      `https://moviesapi.codingfront.dev/api/v1/genres/${genre}/movies?page={page}`
-    );
-    const moviesList = await response.json();
-    movies.value = moviesList.data;
-  } catch (error) {
-    console.error("Error fetching movies:", error);
-  } finally {
-    loading.value = false;
+watch(
+  () => route.query.q,
+  (newQuery) => {
+    query.value = newQuery;
   }
+);
+
+watch(
+  () => route.params.genre,
+  (newGenre) => {
+    genre.value = newGenre;
+  }
+);
+
+const url = computed(
+  () =>
+    `https://moviesapi.codingfront.dev/api/v1/genres/${genre.value}/movies?page=${page.value}`
+);
+
+const searchUrl = computed(
+  () =>
+    `https://moviesapi.codingfront.dev/api/v1/movies?q=${query.value}&page=1`
+);
+
+const fetchUrl = computed(() => {
+  return genre ? url.value : searchUrl.value;
 });
-const goBack = () => {
-  router.go(-1);
+
+const { data, loading } = useFetch(fetchUrl);
+
+const movies = computed(() => (data.value ? data.value.data || [] : []));
+
+const favoritesStore = useFavoritesStore();
+
+const toggleFavorite = (movie) => {
+  favoritesStore.toggleFavorite(movie);
+};
+
+const isFavorite = (movieId) => {
+  return favoritesStore.isFavorite(movieId);
 };
 </script>
 
@@ -41,7 +64,7 @@ const goBack = () => {
     <div class="head">
       <router-link to="/">
         <div class="head_pointer">
-          <img :src="point" alt="" />
+          <img :src="point" alt="Back" />
         </div>
       </router-link>
       <div class="head_text">
@@ -53,51 +76,55 @@ const goBack = () => {
 
     <SearchInput />
 
-   
     <MovieListPageSkeleton v-if="loading" />
 
-
-    <template v-else></template>
-
-    <template v-if="movies.length > 0">
-      <div v-for="movie in movies" :key="movie.id">
-        <router-link class="movie_card" :to="`/movie/${movie.id}`">
-          <div class="movie_card_img"><img :src="movie.poster" alt="" /></div>
-          <div class="movie_card_text">
-            <div class="movie_card_text_title">
-              <div class="movie_card_text_title_detail">
-                <h2>{{ movie.title }}</h2>
-                <img
-                  class="movie_card_text_title_favorite"
-                  :src="icon"
-                  alt=""
-                />
-              </div>
-              <span
-                class="movei_card_genre"
-                v-for="(genre, index) in movie.genres"
-                :key="index"
-                >{{ genre }}
-                <span v-if="index !== movie.genres.length - 1">, </span>
-              </span>
-            </div>
-            <div class="movie_card_detail">
-              <span>{{ movie.year }}</span>
-              <div class="dot"></div>
-              <span>{{ movie.country }}</span>
-              <div class="dot"></div>
-              <img :src="star" alt="" />
-              <span>{{ movie.imdb_rating }}</span>
-            </div>
-          </div>
-        </router-link>
-      </div>
-    </template>
     <template v-else>
-      <div class="not-found">Not movies found for : "{{ genre }}"</div>
+      <template v-if="movies.length > 0">
+        <div v-for="movie in movies" :key="movie.id" class="movie_card_wrapper">
+          <router-link class="movie_card" :to="`/movie/${movie.id}`">
+            <div class="movie_card_img"><img :src="movie.poster" alt="" /></div>
+            <div class="movie_card_text">
+              <div class="movie_card_text_title">
+                <div class="movie_card_text_title_detail">
+                  <h2>{{ movie.title }}</h2>
+                </div>
+                <span
+                  class="movei_card_genre"
+                  v-for="(genre, index) in movie.genres"
+                  :key="index"
+                >
+                  {{ genre
+                  }}<span v-if="index !== movie.genres.length - 1">, </span>
+                </span>
+              </div>
+              <div class="movie_card_detail">
+                <span>{{ movie.year }}</span>
+                <div class="dot"></div>
+                <span>{{ movie.country }}</span>
+                <div class="dot"></div>
+                <img :src="star" alt="" />
+                <span>{{ movie.imdb_rating }}</span>
+              </div>
+            </div>
+          </router-link>
+
+          <!-- Favorite Button (Moved Outside router-link) -->
+          <img
+            class="movie_card_text_title_favorite favorite_icon"
+            :src="isFavorite(movie.id) ? like : icon"
+            alt="Favorite Icon"
+            @click="toggleFavorite(movie)"
+          />
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="not-found">No movies found for: "{{ genre }}"</div>
+      </template>
     </template>
   </div>
 </template>
+
 <style scoped>
 .head {
   margin-left: auto;
@@ -105,6 +132,7 @@ const goBack = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: 30px 0;
 }
 .head_text {
   text-align: center;
@@ -134,7 +162,6 @@ const goBack = () => {
   background-color: var(--l-navy);
   border-radius: 16px;
   padding: 10px;
-  margin-bottom: 32px;
   cursor: pointer;
 }
 .wrapper {
@@ -191,6 +218,22 @@ const goBack = () => {
 }
 .movie_card_text_title_favorite img {
   cursor: pointer;
+}
+.movie_card_wrapper {
+  position: relative;
+}
+.favorite_icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.favorite_icon:hover {
+  transform: scale(1.2);
 }
 .movie_card_detail_item {
   display: flex;

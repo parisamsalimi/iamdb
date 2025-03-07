@@ -1,24 +1,27 @@
 <script setup>
-import point from "@/assets/point.svg";
-import desktop from "@/assets/desktop.jpg";
-import icon from "@/assets/icon.svg";
-import clk from "@/assets/clk.svg";
-
-import { ref, onMounted, computed } from "vue";
+import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useFetch } from "@/composition/useFetch";
+import { useFavoritesStore } from "@/stores/favorites";
+
+import point from "@/assets/point.svg";
+import clk from "@/assets/clk.svg";
+import icon from "@/assets/icon.svg"; 
+import like from "@/assets/like.svg"; 
 import MovieDetailPageSkeleton from "@/components/MovieDetailPageSkeleton.vue";
 
 const router = useRouter();
 const route = useRoute();
-const movie = ref();
-
-const loading = ref(true);
+const favoritesStore = useFavoritesStore();
 
 const id = route.params.id;
+const url = computed(() => `https://moviesapi.codingfront.dev/api/v1/movies/${id}`);
+const { data: movie, loading } = useFetch(url);
 
 const goBack = () => {
   router.go(-1);
 };
+
 
 const backgroundStyle = computed(() => {
   return movie.value && movie.value.images
@@ -28,20 +31,24 @@ const backgroundStyle = computed(() => {
     : {};
 });
 
-onMounted(async () => {
-  try {
-    const response = await fetch(
-      `https://moviesapi.codingfront.dev/api/v1/movies/${id}`
-    );
-    const data = await response.json();
-    movie.value = data;
-    console.log(movie.value);
-  } catch (error) {
-    console.error("Error fetching movie details:", error);
-  } finally {
-    loading.value = false;
+
+const isFavorite = computed(() => movie.value && favoritesStore.isFavorite(movie.value.id));
+
+
+const toggleFavorite = () => {
+  if (movie.value) {
+    favoritesStore.toggleFavorite(movie.value);
   }
-});
+};
+
+
+const buttonClicked = ref(false);
+
+
+const changeButtonColor = () => {
+  buttonClicked.value = !buttonClicked.value;
+};
+
 </script>
 <template>
   <MovieDetailPageSkeleton v-if="loading" />
@@ -51,26 +58,18 @@ onMounted(async () => {
         <div class="head_pointer">
           <img @click="goBack" :src="point" alt="pointer" />
         </div>
+
         <div class="content">
           <div class="image_wrap">
             <img :src="movie.poster" alt="movie_poster" />
+
             <div class="rate_wrapper">
               <div class="rate">
                 <div class="rate_circle">
                   <svg viewBox="0 0 100 100">
                     <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
-                    <circle
-                      class="progress-circle"
-                      cx="50"
-                      cy="50"
-                      r="40"
-                    ></circle>
-                    <text
-                      x="50"
-                      y="55"
-                      text-anchor="middle"
-                      class="rating-text"
-                    >
+                    <circle class="progress-circle" cx="50" cy="50" r="40"></circle>
+                    <text x="50" y="55" text-anchor="middle" class="rating-text">
                       {{ movie.imdb_rating }}
                     </text>
                   </svg>
@@ -88,22 +87,26 @@ onMounted(async () => {
               </div>
             </div>
           </div>
+
           <div class="detail_wrap">
             <div class="title_wrap">
               <h1 class="wrapper_title">{{ movie.title }}</h1>
-              <img :src="icon" alt="" />
+
+              
+              <img
+                class="favorite_icon"
+                :src="isFavorite ? like : icon"
+                alt="Favorite Icon"
+                @click="toggleFavorite"
+              />
             </div>
-            <span
-              class="genre"
-              v-for="(genre, index) in movie.genres"
-              :key="index"
-              >{{ genre }}
+
+            <span class="genre" v-for="(genre, index) in movie.genres" :key="index">
+              {{ genre }}
               <span v-if="index !== movie.genres.length - 1">, </span>
             </span>
 
-            <p class="description">
-              {{ movie.plot }}
-            </p>
+            <p class="description">{{ movie.plot }}</p>
 
             <div class="movie_detail">
               <div class="detail_item">{{ movie.rated }}</div>
@@ -143,11 +146,20 @@ onMounted(async () => {
             </div>
           </div>
         </div>
-        <button class="button_wrap">Add to Favorite</button>
+
+        
+        <button 
+          class="button_wrap" 
+          :style="{ backgroundColor: buttonClicked ? '#222C4F' : '' }" 
+          @click="changeButtonColor"
+        >
+          {{ buttonClicked ? "Remove from Favorite" : "Add to Favorite" }}
+        </button>
       </div>
     </div>
   </template>
 </template>
+
 <style scoped>
 .container {
   width: 100%;
@@ -323,6 +335,24 @@ svg {
   font-size: 13px;
   word-spacing: 2px;
 }
+
+.title_wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.favorite_icon {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.favorite_icon:hover {
+  transform: scale(1.2);
+}
+
 
 @media screen and (max-width: 768px) {
   .content {

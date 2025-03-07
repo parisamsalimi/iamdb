@@ -10,7 +10,12 @@ const routes = [
   },
   {
     path: "/movies/:genre",
-    name: "MovieListPage",
+    name: "GenreListPage",
+    component: MovieListPage,
+  },
+  {
+    path: "/search",
+    name: "SearchPage",
     component: MovieListPage,
   },
   {
