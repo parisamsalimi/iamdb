@@ -6,8 +6,8 @@ import { useFavoritesStore } from "@/stores/favorites";
 
 import point from "@/assets/point.svg";
 import clk from "@/assets/clk.svg";
-import icon from "@/assets/icon.svg"; 
-import like from "@/assets/like.svg"; 
+import icon from "@/assets/icon.svg";
+import like from "@/assets/like.svg";
 import MovieDetailPageSkeleton from "@/components/MovieDetailPageSkeleton.vue";
 
 const router = useRouter();
@@ -15,13 +15,14 @@ const route = useRoute();
 const favoritesStore = useFavoritesStore();
 
 const id = route.params.id;
-const url = computed(() => `https://moviesapi.codingfront.dev/api/v1/movies/${id}`);
+const url = computed(
+  () => `https://moviesapi.codingfront.dev/api/v1/movies/${id}`
+);
 const { data: movie, loading } = useFetch(url);
 
 const goBack = () => {
   router.go(-1);
 };
-
 
 const backgroundStyle = computed(() => {
   return movie.value && movie.value.images
@@ -31,9 +32,9 @@ const backgroundStyle = computed(() => {
     : {};
 });
 
-
-const isFavorite = computed(() => movie.value && favoritesStore.isFavorite(movie.value.id));
-
+const isFavorite = computed(() => {
+  return movie.value && favoritesStore.isFavorite(movie.value.id);
+});
 
 const toggleFavorite = () => {
   if (movie.value) {
@@ -41,14 +42,11 @@ const toggleFavorite = () => {
   }
 };
 
-
-const buttonClicked = ref(false);
-
+const buttonClicked = computed(() => isFavorite.value);
 
 const changeButtonColor = () => {
   buttonClicked.value = !buttonClicked.value;
 };
-
 </script>
 <template>
   <MovieDetailPageSkeleton v-if="loading" />
@@ -68,8 +66,18 @@ const changeButtonColor = () => {
                 <div class="rate_circle">
                   <svg viewBox="0 0 100 100">
                     <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
-                    <circle class="progress-circle" cx="50" cy="50" r="40"></circle>
-                    <text x="50" y="55" text-anchor="middle" class="rating-text">
+                    <circle
+                      class="progress-circle"
+                      cx="50"
+                      cy="50"
+                      r="40"
+                    ></circle>
+                    <text
+                      x="50"
+                      y="55"
+                      text-anchor="middle"
+                      class="rating-text"
+                    >
                       {{ movie.imdb_rating }}
                     </text>
                   </svg>
@@ -92,7 +100,6 @@ const changeButtonColor = () => {
             <div class="title_wrap">
               <h1 class="wrapper_title">{{ movie.title }}</h1>
 
-              
               <img
                 class="favorite_icon"
                 :src="isFavorite ? like : icon"
@@ -101,7 +108,11 @@ const changeButtonColor = () => {
               />
             </div>
 
-            <span class="genre" v-for="(genre, index) in movie.genres" :key="index">
+            <span
+              class="genre"
+              v-for="(genre, index) in movie.genres"
+              :key="index"
+            >
               {{ genre }}
               <span v-if="index !== movie.genres.length - 1">, </span>
             </span>
@@ -147,11 +158,10 @@ const changeButtonColor = () => {
           </div>
         </div>
 
-        
-        <button 
-          class="button_wrap" 
-          :style="{ backgroundColor: buttonClicked ? '#222C4F' : '' }" 
-          @click="changeButtonColor"
+        <button
+          class="button_wrap"
+          :style="{ backgroundColor: buttonClicked ? '#222C4F' : '' }"
+          @click="toggleFavorite"
         >
           {{ buttonClicked ? "Remove from Favorite" : "Add to Favorite" }}
         </button>
@@ -352,7 +362,6 @@ svg {
 .favorite_icon:hover {
   transform: scale(1.2);
 }
-
 
 @media screen and (max-width: 768px) {
   .content {

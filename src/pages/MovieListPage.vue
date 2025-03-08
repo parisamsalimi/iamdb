@@ -275,28 +275,4 @@ const isFavorite = (movieId) => {
   top: 10px;
   right: 10px;
   width: 24px;
-  height: 24px;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.favorite_icon:hover {
-  transform: scale(1.2);
-}
-.movie_card_detail_item {
-  display: flex;
-  justify-content: space-between;
-}
-
-.not-found {
-  margin-top: 65px;
-  text-align: center;
-}
-
-@media screen and (min-width: 1440px) {
-  .head_text {
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-</style>
+  height: 24p
