@@ -27,5 +27,4 @@ export function useFetch(url) {
     fetchData();
   });
 
-  return { data, loading, error, fetchData };
-}
+  return { data, loading, e

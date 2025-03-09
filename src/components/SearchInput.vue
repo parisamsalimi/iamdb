@@ -49,7 +49,7 @@ const toggleListening = () => {
       class="search_input"
       v-model="searchQuery"
       @keyup.enter="searchMovies"
-      placeholder="Search for movies..."
+      placeholder=""
     />
     <button id="microphone" class="input_icon" @click="toggleListening">
       <img :src="mic" alt="Mic Icon" />
@@ -75,33 +75,4 @@ const toggleListening = () => {
   width: 48px;
   height: 24px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.input_icon img {
-  cursor: pointer;
-}
-#microphone {
-  border-left: 1px solid var(--navy);
-}
-.search_input {
-  background-color: var(--l-navy);
-  border: none;
-  height: 48px;
-  flex: 1;
-}
-
-.search_bar:focus {
-  outline: none;
-}
-
-.search_line {
-  position: absolute;
-  top: 50%;
-  right: 50px;
-  transform: translateY(-50%);
-  width: 1px;
-  height: 60%;
-  background-color: var(--navy);
-}
-</style>
+  align-i
